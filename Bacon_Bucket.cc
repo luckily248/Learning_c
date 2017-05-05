@@ -1,21 +1,24 @@
 /*################################################
-  # #issuse with prototypeing functions         #
-  # (windows API testing)                       #
+  # # USE windows time to move bacon at interval #
+  # (windows API testing)                        #
   ################################################*/
+#define _WIN32_WINNT 0x0500
 #include<windows.h>
+#include<SDKDDKVer.h> //https://msdn.microsoft.com/en-us/library/aa383745(VS.85).aspx
 #include<iostream>
 #include<conio.h>
 #include<cstdlib>
 
-    // Set up the handles for reading/writing:
-    HANDLE writing = GetStdHandle(STD_OUTPUT_HANDLE);
-    HANDLE reading = GetStdHandle(STD_INPUT_HANDLE);
+// Set up the handles for reading/writing:
+HANDLE writing = GetStdHandle(STD_OUTPUT_HANDLE);
+HANDLE reading = GetStdHandle(STD_INPUT_HANDLE);
 
 void prepare_cmd_size(){
   // Change the window title:
   SetConsoleTitle(TEXT("Bacon Bucket"));
 
   // Set up the required window size:
+  //http://stackoverflow.com/questions/20017457/getconsolewindow-was-not-declared-in-this-scope
   HWND hwnd = GetConsoleWindow();
   RECT size = {0, 0, 900, 1500};
   MoveWindow(
@@ -39,66 +42,69 @@ void GoToXY(int column, int line){
         // You can call GetLastError() to get a more specific error code.
     }
 }
-/*################################################
-  # method of moving things with minimal flicker #
-  # an array with a loop that will print in a for#
-  # loop, changeing the vertical...(windows API) #
-  # array sligtly faster then a vector...        #
-  ################################################*/
-  void print_array_at_coordinate(int x, int y,std::string(array)[0],int array_size,int color){
-    SetConsoleTextAttribute(writing, color);
-    for(int i=0;i<array_size;i++){
-      GoToXY(x,i+y);
-      std::cout<<array[i];
-    }
+void print_array_at_coordinate(int x, int y,std::string(array)[0],int color){
+  SetConsoleTextAttribute(writing, color);
+  for(int i=0;array[i] != "end";i++){
+    GoToXY(x,i+y);
+    std::cout<<array[i];
   }
-// All the ASSII ART arrays
-std::string assii_bucket_array[6]={
+}
+//void recive_pressed_key(){
+
+// All the ASSII ART arrays.. need "end" (notifys print_array_at_coordinate when to stop)
+std::string assii_bucket_array[7]={
   ",.--'`````'--.,",
   "|'-.,_____,.-'|",
   "| -.,_____,.- |",
   "|             |",
   "|             |",
-  "`'-.,_____,.-''"
-};
-std::string assii_bacon_array[4]={
+  "`'-.,_____,.-''",
+  "end"};
+std::string assii_bacon_array[5]={
      "   .-'__`-._.'.--.'.__.,",
      " /--'  '-._.'    '-._./",
      "/__.--._.--._.'``-.__/",
-     "'._.-'-._.-._.-''-..'"};
-
+     "'._.-'-._.-._.-''-..'",
+     "end"};
 
 main(){
   prepare_cmd_size();
+  int Bacon_x = 30;
+  int Bacon_y = 20;
+
   start:
-  print_array_at_coordinate(30,39,assii_bucket_array,6,15); //color 15 is grey
+  print_array_at_coordinate(30,39,assii_bucket_array,15); //color 15 is grey
+  print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,12); //color 12 is red
 
-  //animation test... will make a function with a key for 1 iteration later....
-  // if it goes past the end of the cmd it prints below "randomly"... why?
-  //delay will cause an error too ... cant move many things at once or heavy flicker
-  for(int i=0;i<180;i++){
-    print_array_at_coordinate(i,30,assii_bacon_array,4,12);  //color 12 is red
-    for(int delay=1;delay<=3000000;delay++);     //to slow things down
-    print_array_at_coordinate(i,30,assii_bacon_array,4,0);   //color 0 is blank
+  // Fetch tab key state.
+SHORT KeyState_down  = GetAsyncKeyState( VK_DOWN );
+SHORT KeyState_right = GetAsyncKeyState( VK_RIGHT );
+SHORT KeyState_left  = GetAsyncKeyState( VK_LEFT );
 
-    print_array_at_coordinate(i,20,assii_bacon_array,4,12);  //color 12 is red
-    for(int delay=1;delay<=3000000;delay++);     //to slow things down
-    print_array_at_coordinate(i,20,assii_bacon_array,4,0);   //color 0 is blank
-
-//theres a print error ... but I like it for a one pass then start...
-    print_array_at_coordinate(i,39,assii_bucket_array,6,15); //color 15 is grey
-    for(int delay=1;delay<=300000;delay++);     //to slow things down
-    print_array_at_coordinate(i,39,assii_bucket_array,6,15); //color 15 is grey
-  }
+// Test high bit - if set, key was down when GetAsyncKeyState was called.
+if( ( 1 << 15 ) & KeyState_right && Bacon_x < 170){
+    print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,0);   //color 0 is blank
+    Bacon_x += 1;
+    print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,12); //color 12 is red
+}
+if( ( 1 << 15 ) & KeyState_left && Bacon_x > 1){
+      print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,0);   //color 0 is blank
+      Bacon_x -= 1;
+      print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,12); //color 12 is red
+}
   goto start;
 }
-// windowed fullscreen
-//ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
-//goto here; for recursive things
-//for(int delay=1;delay<=3000000;delay++);     to slow things down ...goog for seeing errors
+//ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);   windowed fullscreen
+//start:  goto start;                            for recursive things
+//for(int delay=1;delay<=3000000;delay++);       to slow things down
 
 
 /*   #<http://www.benryves.com/tutorials/winconsole/>
+for(int i=0;i<180;i++){
+  print_array_at_coordinate(i,30,assii_bacon_array,12);  //color 12 is red
+  for(int delay=1;delay<=3000000;delay++);     //to slow things down
+  print_array_at_coordinate(i,30,assii_bacon_array,0);   //color 0 is blank
+}
   ###############################################################################################################
   // Set up the required window size FAIL.. but important information                                     FAIL 1
   _SMALL_RECT console_size;
