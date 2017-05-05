@@ -12,6 +12,24 @@
 // Set up the handles for reading/writing:
 HANDLE writing = GetStdHandle(STD_OUTPUT_HANDLE);
 HANDLE reading = GetStdHandle(STD_INPUT_HANDLE);
+//initilize cordinates of arrays
+int Bacon_x = 30, Bacon_y = 20;
+// All the ASSII ART arrays.. need "end" (notifys print_array_at_coordinate when to stop)
+std::string assii_bucket_array[7]={
+  ",.--'`````'--.,",
+  "|'-.,_____,.-'|",
+  "| -.,_____,.- |",
+  "|             |",
+  "|             |",
+  "`'-.,_____,.-''",
+  "end"};
+std::string assii_bacon_array[5]={
+     "   .-'__`-._.'.--.'.__.,",
+     " /--'  '-._.'    '-._./",
+     "/__.--._.--._.'``-.__/",
+     "'._.-'-._.-._.-''-..'",
+     "end"};
+
 
 void prepare_cmd_size(){
   // Change the window title:
@@ -49,49 +67,41 @@ void print_array_at_coordinate(int x, int y,std::string(array)[0],int color){
     std::cout<<array[i];
   }
 }
-//void recive_pressed_key(){
-
-// All the ASSII ART arrays.. need "end" (notifys print_array_at_coordinate when to stop)
-std::string assii_bucket_array[7]={
-  ",.--'`````'--.,",
-  "|'-.,_____,.-'|",
-  "| -.,_____,.- |",
-  "|             |",
-  "|             |",
-  "`'-.,_____,.-''",
-  "end"};
-std::string assii_bacon_array[5]={
-     "   .-'__`-._.'.--.'.__.,",
-     " /--'  '-._.'    '-._./",
-     "/__.--._.--._.'``-.__/",
-     "'._.-'-._.-._.-''-..'",
-     "end"};
+void moveBacon(){
+  // Fetch key state.
+  SHORT KeyState_up    = GetAsyncKeyState(VK_UP);
+  SHORT KeyState_down  = GetAsyncKeyState(VK_DOWN);
+  SHORT KeyState_right = GetAsyncKeyState(VK_RIGHT);
+  SHORT KeyState_left  = GetAsyncKeyState(VK_LEFT);
+  // Test high bits - if set, key was down when GetAsyncKeyState was called.
+  if( ( 1 << 15 ) & KeyState_right && Bacon_x < 170){
+      print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,0);   //color 0 is blank
+      Bacon_x += 1;
+      print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,12); //color 12 is red
+  }
+  if( ( 1 << 15 ) & KeyState_left && Bacon_x > 1){
+        print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,0);   //color 0 is blank
+        Bacon_x -= 1;
+        print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,12); //color 12 is red
+  }
+  if( ( 1 << 15 ) & KeyState_down && Bacon_y < 50){
+        print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,0);   //color 0 is blank
+        Bacon_y += 1;
+        print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,12); //color 12 is red
+  }
+  if( ( 1 << 15 ) & KeyState_up && Bacon_y > 1){
+        print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,0);   //color 0 is blank
+        Bacon_y -= 1;
+        print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,12); //color 12 is red
+  }
+}
 
 main(){
   prepare_cmd_size();
-  int Bacon_x = 30;
-  int Bacon_y = 20;
-
   start:
   print_array_at_coordinate(30,39,assii_bucket_array,15); //color 15 is grey
   print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,12); //color 12 is red
-
-  // Fetch tab key state.
-SHORT KeyState_down  = GetAsyncKeyState( VK_DOWN );
-SHORT KeyState_right = GetAsyncKeyState( VK_RIGHT );
-SHORT KeyState_left  = GetAsyncKeyState( VK_LEFT );
-
-// Test high bit - if set, key was down when GetAsyncKeyState was called.
-if( ( 1 << 15 ) & KeyState_right && Bacon_x < 170){
-    print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,0);   //color 0 is blank
-    Bacon_x += 1;
-    print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,12); //color 12 is red
-}
-if( ( 1 << 15 ) & KeyState_left && Bacon_x > 1){
-      print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,0);   //color 0 is blank
-      Bacon_x -= 1;
-      print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,12); //color 12 is red
-}
+  moveBacon();
   goto start;
 }
 //ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);   windowed fullscreen
