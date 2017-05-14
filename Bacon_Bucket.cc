@@ -2,9 +2,8 @@
   # # USE windows time to move bacon at interval #
   # (windows API testing)                        #
   ################################################*/
-#define _WIN32_WINNT 0x0500
+#define _WIN32_WINNT 0x0500  //https://msdn.microsoft.com/en-us/library/aa383745(VS.85).aspx
 #include<windows.h>
-#include<SDKDDKVer.h> //https://msdn.microsoft.com/en-us/library/aa383745(VS.85).aspx
 #include<iostream>
 #include<conio.h>
 #include<cstdlib>
@@ -13,7 +12,8 @@
 HANDLE writing = GetStdHandle(STD_OUTPUT_HANDLE);
 HANDLE reading = GetStdHandle(STD_INPUT_HANDLE);
 //initilize cordinates of arrays
-int Bacon_x = 30, Bacon_y = 20;
+int Bacon_x = 30, Bacon_y = 5;
+int Bucket_x = 30, Bucket_y = 20;
 // All the ASSII ART arrays.. need "end" (notifys print_array_at_coordinate when to stop)
 std::string assii_bucket_array[7]={
   ",.--'`````'--.,",
@@ -30,11 +30,9 @@ std::string assii_bacon_array[5]={
      "'._.-'-._.-._.-''-..'",
      "end"};
 
-
 void prepare_cmd_size(){
   // Change the window title:
   SetConsoleTitle(TEXT("Bacon Bucket"));
-
   // Set up the required window size:
   //http://stackoverflow.com/questions/20017457/getconsolewindow-was-not-declared-in-this-scope
   HWND hwnd = GetConsoleWindow();
@@ -94,20 +92,44 @@ void moveBacon(){
         Bacon_y -= 1;
         print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,12); //color 12 is red
   }
+  //need to use a windows time delay to prevent flicker... outside of this... like do after time but keep going on to next
+  for(int delay=1;delay<=5000000;delay++);       //to slow things down... can have speed upgrades???
 }
 
 main(){
   prepare_cmd_size();
   start:
-  print_array_at_coordinate(30,39,assii_bucket_array,15); //color 15 is grey
+  //need make a random start pont and move velocity for buckets....
+  //the point will be to doge things.... make powerups?
+  // can make walls with collision  // speed of bacon // slow time //
+
+  print_array_at_coordinate(Bucket_x,Bucket_y,assii_bucket_array,15); //color 15 is grey
   print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,12); //color 12 is red
   moveBacon();
-  goto start;
-}
-//ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);   windowed fullscreen
-//start:  goto start;                            for recursive things
-//for(int delay=1;delay<=3000000;delay++);       to slow things down
 
+  //basic array collision ...
+  //check one coordinate x & y   agenst every coordinate of the other array....
+  // slow but works for sillyness continuity   vector.incude?
+  for(int x = 0; x < sizeof(assii_bacon_array)/sizeof(assii_bacon_array[0]); x++){
+    for(int x2 = 0; x2 < 23; x2++){
+      for(int x3 = 0; x3 < sizeof(assii_bucket_array)/sizeof(assii_bucket_array[0]); x3++){
+        for(int x4 = 0; x4 < 14; x4++){
+          if(Bacon_x+x2 == Bucket_x+x4 && Bacon_y-(x+2) == Bucket_y-x3)goto print;    // .. bacon fix y-coordinate
+        }
+      }
+    }
+  }
+
+  goto start;
+  print:
+  std::cout <<"   THE BACON HIT THE BUCKET!!!!!!!!\a";
+}
+/*##########################################################################
+ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);   windowed fullscreen
+start:  goto start;                            for recursive things
+for(int delay=1;delay<=3000000;delay++);       to slow things down
+\a   OR   \7                                   plays a sound
+##########################################################################*/
 
 /*   #<http://www.benryves.com/tutorials/winconsole/>
 for(int i=0;i<180;i++){
@@ -143,7 +165,4 @@ for(int i=0;i<180;i++){
     print_array_at_coordinate(x,y,blank_array,array_size,3);
   }
   #################################################################################################################
-
-
-
   */
