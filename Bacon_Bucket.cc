@@ -2,7 +2,8 @@
   # # USE windows time to move bacon at interval #
   # (windows API testing)                        #
   ################################################*/
-#define _WIN32_WINNT 0x0500  //https://msdn.microsoft.com/en-us/library/aa383745(VS.85).aspx
+#define _WIN32_WINNT 0x0500                           //https://msdn.microsoft.com/en-us/library/aa383745(VS.85).aspx
+#define ARRAY_SIZE(x) (sizeof((x)) / sizeof((x)[0]))  //becaue ponters/functions --no ponter iterator
 #include<windows.h>
 #include<iostream>
 #include<conio.h>
@@ -11,9 +12,11 @@
 // Set up the handles for reading/writing:
 HANDLE writing = GetStdHandle(STD_OUTPUT_HANDLE);
 HANDLE reading = GetStdHandle(STD_INPUT_HANDLE);
+
 //initilize cordinates of arrays
 int Bacon_x = 30, Bacon_y = 5;
-int Bucket_x = 30, Bucket_y = 20;
+int Bucket_x = 60, Bucket_y = 20;
+
 // All the ASSII ART arrays.. need "end" (notifys print_array_at_coordinate when to stop)
 std::string assii_bucket_array[7]={
   ",.--'`````'--.,",
@@ -107,18 +110,21 @@ main(){
   print_array_at_coordinate(Bacon_x,Bacon_y,assii_bacon_array,12); //color 12 is red
   moveBacon();
 
-  //basic array collision ...
+  //basic array collision ... only really need to check perimiter... not area... WHATEVER Mr.duck
   //check one coordinate x & y   agenst every coordinate of the other array....
-  // slow but works for sillyness continuity   vector.incude?
+  // slow but works for sillyness continuity  ( vector would be used to make this a function)
   for(int x = 0; x < sizeof(assii_bacon_array)/sizeof(assii_bacon_array[0]); x++){
-    for(int x2 = 0; x2 < 23; x2++){
+    for(int x2 = 0; x2 < assii_bacon_array[0].size(); x2++){
       for(int x3 = 0; x3 < sizeof(assii_bucket_array)/sizeof(assii_bucket_array[0]); x3++){
-        for(int x4 = 0; x4 < 14; x4++){
+        for(int x4 = 0; x4 < assii_bucket_array[0].size(); x4++){
           if(Bacon_x+x2 == Bucket_x+x4 && Bacon_y-(x+2) == Bucket_y-x3)goto print;    // .. bacon fix y-coordinate
         }
       }
     }
   }
+
+  // use time to move function down one line.. x value every half SetConsoleWindowInfo
+  if(time- last checked > last checked  + .05 SECONDS) aprox .05 sec an incriment fall
 
   goto start;
   print:
@@ -129,6 +135,7 @@ ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);   windowed fullscreen
 start:  goto start;                            for recursive things
 for(int delay=1;delay<=3000000;delay++);       to slow things down
 \a   OR   \7                                   plays a sound
+
 ##########################################################################*/
 
 /*   #<http://www.benryves.com/tutorials/winconsole/>
@@ -165,4 +172,21 @@ for(int i=0;i<180;i++){
     print_array_at_coordinate(x,y,blank_array,array_size,3);
   }
   #################################################################################################################
+  // The array is passed as a reference to the function, keeping the size information (only for C++)           Fail 3
+   template<typename T, size_t N>
+  void colision_check(std::string T (&a)[N],std::string* array2){
+    //basic array collision ... only really need to check perimiter... not area... WHATEVER Mr.duck
+    //check one coordinate x & y   agenst every coordinate of the other array....
+    // slow but works for sillyness continuity   vector.incude?
+    std::cout<<N;
+    for(int x = 0; x < sizeof(array1)/sizeof(array1[0]); x++){
+      for(int x2 = 0; x2 < array1[0].size(); x2++){
+        for(int x3 = 0; x3 < sizeof(array2)/sizeof(array2[0]); x3++){
+          for(int x4 = 0; x4 < array2[0].size(); x4++){
+            if(Bacon_x+x2 == Bucket_x+x4 && Bacon_y-(x+2) == Bucket_y-x3)std::cout<<"HIT THE ARRAY";    // .. bacon fix y-coordinate
+          }
+        }
+      }
+    }
+  }
   */
